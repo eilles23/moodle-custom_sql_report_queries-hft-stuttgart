@@ -81,6 +81,11 @@ JOIN prefix_course AS c ON c.id = u.course
 WHERE c.id LIKE mc.id 
 ) AS assignment,
 (SELECT COUNT(*)
+FROM prefix_assign AS u
+JOIN prefix_course AS c ON c.id = u.course
+WHERE c.id LIKE mc.id 
+) AS assign,  
+(SELECT COUNT(*)
 FROM prefix_chat AS u
 JOIN prefix_course AS c ON c.id = u.course
 WHERE c.id LIKE mc.id 
@@ -139,7 +144,13 @@ WHERE c.id LIKE mc.id
 FROM prefix_workshop AS u
 JOIN prefix_course AS c ON c.id = u.course
 WHERE c.id LIKE mc.id 
-) AS workshop
+) AS workshop,
+(SELECT COUNT(*)
+ FROM prefix_course_sections as cs
+ JOIN prefix_course AS c ON c.id = cs.course
+ WHERE c.id LIKE mc.id
+ AND NOT cs.summary=''
+ ) AS plaintext
 FROM prefix_course AS mc
 JOIN prefix_course_categories as cat on mc.category = cat.id
 WHERE FROM_UNIXTIME(mc.timecreated, '%Y-%m-%d') < DATE_SUB(NOW(), INTERVAL 60 DAY)
@@ -152,6 +163,7 @@ AND URLs = 0
 AND pages = 0
 AND quiz = 0
 AND assignment = 0
+AND assign = 0
 AND chat = 0
 AND choice = 0
 AND db = 0
@@ -163,4 +175,5 @@ AND quiz = 0
 AND scrom = 0
 AND survey = 0
 AND wiki = 0
-AND workshop = 0) as content
+AND workshop = 0
+AND plaintext = 0) as content
