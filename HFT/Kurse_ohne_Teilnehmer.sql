@@ -1,6 +1,39 @@
 SELECT cc.id, CONCAT('<a target="_blank" href="%%WWWROOT%%/course/view.php',CHAR(63),'id=',cc.id,'">',cc.fullname,'</a>') AS 'Kursname'
-,cc.Cotrainer as 'Co-Trainer'
-,cc.Trainer as 'Trainer'
+,cc.Cotrainer as '#'
+,(SELECT CONCAT('<a href="mailto:',group_concat(cotrainer.email),'">Mailto</a>') FROM (SELECT c.id as courseid, usr.email, usr.lastname 
+FROM prefix_course as c
+INNER JOIN prefix_context cx ON c.id = cx.instanceid
+INNER JOIN prefix_role_assignments ra ON cx.id = ra.contextid
+INNER JOIN prefix_role r ON ra.roleid = r.id
+INNER JOIN prefix_user usr ON ra.userid = usr.id
+WHERE ra.roleid = 19) as cotrainer
+WHERE cotrainer.courseid = cc.id) as 'm1'
+,(SELECT group_concat(cotrainer.lastname) FROM (SELECT c.id as courseid, usr.email, usr.lastname 
+FROM prefix_course as c
+INNER JOIN prefix_context cx ON c.id = cx.instanceid
+INNER JOIN prefix_role_assignments ra ON cx.id = ra.contextid
+INNER JOIN prefix_role r ON ra.roleid = r.id
+INNER JOIN prefix_user usr ON ra.userid = usr.id
+WHERE ra.roleid = 19) as cotrainer
+WHERE cotrainer.courseid = cc.id) as 'co-Trainer'
+
+,cc.Trainer as '##'
+,(SELECT CONCAT('<a href="mailto:',group_concat(trainer.email),'">Mailto</a>') FROM (SELECT c.id as courseid, usr.email, usr.lastname 
+FROM prefix_course as c
+INNER JOIN prefix_context cx ON c.id = cx.instanceid
+INNER JOIN prefix_role_assignments ra ON cx.id = ra.contextid
+INNER JOIN prefix_role r ON ra.roleid = r.id
+INNER JOIN prefix_user usr ON ra.userid = usr.id
+WHERE ra.roleid = 3) as trainer
+WHERE trainer.courseid = cc.id) as 'm2'
+,(SELECT group_concat(trainer.lastname) FROM (SELECT c.id as courseid, usr.email, usr.lastname 
+FROM prefix_course as c
+INNER JOIN prefix_context cx ON c.id = cx.instanceid
+INNER JOIN prefix_role_assignments ra ON cx.id = ra.contextid
+INNER JOIN prefix_role r ON ra.roleid = r.id
+INNER JOIN prefix_user usr ON ra.userid = usr.id
+WHERE ra.roleid = 3) as trainer
+WHERE trainer.courseid = cc.id) as 'Trainer'
 ,CONCAT('<a target="_blank" href="%%WWWROOT%%/course/index.php',CHAR(63),'categoryid=',cc.category,'">',cat.name,'</a>') AS 'Kategorie'
 ,(SELECT group_concat(pp.name) FROM (SELECT x.id as id, rolesonparent.name as name FROM prefix_course_categories as x LEFT JOIN (SELECT
 cc.id AS id,
